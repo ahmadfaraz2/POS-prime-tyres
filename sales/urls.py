@@ -8,7 +8,7 @@ urlpatterns = [
     path('', views.SaleListView.as_view(), name='sale_list'),
     path('create/', views.SaleCreateView.as_view(), name='sale_create'), 
     path('<int:pk>/', views.SaleDetailView.as_view(), name='sale_detail'),
-    
+    path('<int:pk>/receipt/', views.sale_receipt_view, name='sale_receipt'),
     # Installment and Payment Flow
     path('installments/', views.InstallmentListView.as_view(), name='installment_list'),
     # Route to pay against a specific InstallmentPlan (uses its PK)

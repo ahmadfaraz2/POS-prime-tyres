@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Sum, F
 from django.forms import inlineformset_factory
@@ -129,3 +130,16 @@ class InstallmentPaymentCreateView(LoginRequiredMixin, CreateView):
         payment.save()
         messages.success(self.request, f"Payment of ${payment.amount_paid} recorded successfully.")
         return redirect(self.get_success_url())
+    
+
+
+@login_required
+def sale_receipt_view(request, pk):
+    """Generates a simplified, print-friendly receipt view for a Sale."""
+    sale = get_object_or_404(Sale, pk=pk)
+    
+    context = {
+        'sale': sale,
+    }
+    # Renders the new, simple receipt template
+    return render(request, 'sales/sale_receipt.html', context)
