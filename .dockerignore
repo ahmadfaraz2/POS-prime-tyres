@@ -1,0 +1,7 @@
+*.sqlite3
+.DS_Store
+.venv
+__pycache__
+*.pyc
+Dockerfile
+.dockerignore

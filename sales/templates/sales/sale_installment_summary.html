@@ -1,0 +1,25 @@
+{% load humanize %}
+{% load mathfilters %}
+
+{% with total_paid=plan.payments.all|dict_sum:'amount_paid'|default:0 %}
+{% with remaining_balance=plan.sale.total_amount|sub:total_paid %}
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+    <div class="p-2 border rounded-lg bg-orange-50">
+        <p class="font-medium text-gray-600">Initial Pmt</p>
+        <p class="font-bold text-orange-700">${{ plan.initial_payment|floatformat:2|intcomma }}</p>
+    </div>
+    <div class="p-2 border rounded-lg bg-green-50">
+        <p class="font-medium text-gray-600">Total Paid</p>
+        <p class="font-bold text-green-700">${{ total_paid|floatformat:2|intcomma }}</p>
+    </div>
+    <div class="p-2 border rounded-lg bg-red-50">
+        <p class="font-medium text-gray-600">Remaining Balance</p>
+        <p class="font-bold {% if remaining_balance > 0 %}text-red-700{% else %}text-green-700{% endif %}">${{ remaining_balance|abs|floatformat:2|intcomma }}</p>
+    </div>
+    <div class="p-2 border rounded-lg bg-blue-50">
+        <p class="font-medium text-gray-600">Installments</p>
+        <p class="font-bold text-blue-700">{{ plan.num_installments }} ({{ plan.installment_amount|floatformat:2 }} each)</p>
+    </div>
+</div>
+{% endwith %}
+{% endwith %}

@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Django ERP{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-blue': '#1e40af', /* Tailwind blue-700 */
+                        'primary-light': '#f3f4f6', /* Tailwind gray-100 */
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-primary-light min-h-screen flex">
+
+    <aside id="sidebar" class="bg-primary-blue text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out">
+        <a href="{% url 'dashboard:dashboard_view' %}" class="text-white text-2xl font-semibold uppercase flex items-center justify-center">
+            Point of Sale
+        </a>
+
+        <nav>
+            <a href="{% url 'dashboard:dashboard_view' %}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-white hover:text-primary-blue">
+                Dashboard
+            </a>
+            <a href="{% url 'products:product_list' %}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-white hover:text-primary-blue">
+                Products
+            </a>
+            <a href="{% url 'customers:customer_list' %}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-white hover:text-primary-blue">
+                Customers
+            </a>
+            <a href="{% url 'sales:sale_list' %}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-white hover:text-primary-blue">
+                Sales
+            </a>
+            <a href="{% url 'sales:installment_list' %}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-white hover:text-primary-blue">
+                Installments
+            </a>
+        </nav>
+    </aside>
+
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <header class="flex justify-around items-center bg-white shadow p-4">
+            <button id="menu-btn" class="text-primary-blue md:hidden">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+            
+            <div class="flex justify-between items-center space-x-4">
+                {% if user.is_authenticated %}
+                <span class="text-gray-700">Welcome, <strong>{{ user.username }}</strong></span>
+                
+                <a href="{% url 'accounts:logout' %}" class="text-red-500 hover:text-red-700 font-medium">
+                    Logout
+                </a>
+                {% endif %}
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-x-hidden overflow-y-auto p-6">
+            
+            {% if messages %}
+                {% for message in messages %}
+                <div class="p-4 mb-4 text-sm rounded-lg 
+                    {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-blue-100 text-blue-700{% endif %}"
+                    role="alert">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}
+            {% endblock content %}
+        </main>
+    </div>
+
+    <script>
+        document.getElementById('menu-btn').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+    </script>
+</body>
+</html>

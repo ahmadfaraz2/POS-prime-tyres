@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <h1 class="text-4xl font-extrabold text-gray-800">Analytics Dashboard</h1>
+    
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+
+        <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-primary-blue transition duration-300 hover:shadow-xl">
+            <p class="text-sm font-medium text-gray-500">Today's Sales</p>
+            <p class="mt-1 text-3xl font-bold text-primary-blue">{{ today_sales_count }}</p>
+            <a href="{% url 'sales:sale_list' %}" class="text-xs text-primary-blue hover:underline mt-2 block">View all sales</a>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-green-600 transition duration-300 hover:shadow-xl">
+            <p class="text-sm font-medium text-gray-500">Total Revenue (All Time)</p>
+            <p class="mt-1 text-3xl font-bold text-green-600">Rs {{ total_revenue|floatformat:2|intcomma }}</p>
+            <p class="text-xs text-gray-400 mt-2 block">Accumulated gross sales</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-purple-600 transition duration-300 hover:shadow-xl">
+            <p class="text-sm font-medium text-gray-500">Total Customers</p>
+            <p class="mt-1 text-3xl font-bold text-purple-600">{{ total_customers|intcomma }}</p>
+            <a href="{% url 'customers:customer_list' %}" class="text-xs text-purple-600 hover:underline mt-2 block">Manage customers</a>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-yellow-600 transition duration-300 hover:shadow-xl">
+            <p class="text-sm font-medium text-gray-500">Total Products</p>
+            <p class="mt-1 text-3xl font-bold text-yellow-600">{{ total_products|intcomma }}</p>
+            <a href="{% url 'products:product_list' %}" class="text-xs text-yellow-600 hover:underline mt-2 block">Manage inventory</a>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <div class="bg-white p-6 rounded-xl shadow-lg">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+                <h2 class="text-xl font-semibold text-gray-700">Outstanding Receivables</h2>
+                <a href="{% url 'sales:installment_list' %}" class="text-sm text-orange-600 hover:underline">View Plans →</a>
+            </div>
+            
+            {% if outstanding_installments_count > 0 %}
+            <div class="space-y-2">
+                <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                    <span class="text-sm text-red-700 font-medium">Active Plans</span>
+                    <span class="text-lg font-bold text-red-700">{{ outstanding_installments_count }}</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-orange-50 rounded-lg">
+                    <span class="text-sm text-orange-700 font-medium">Total Outstanding Balance</span>
+                    <span class="text-lg font-bold text-orange-700">${{ outstanding_balance_sum|floatformat:2|intcomma }}</span>
+                </div>
+            </div>
+            {% else %}
+            <p class="text-gray-500 text-center py-4">🎉 All installment plans are currently paid in full!</p>
+            {% endif %}
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-lg">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+                <h2 class="text-xl font-semibold text-gray-700">Inventory Warnings</h2>
+                <a href="{% url 'products:product_list' %}" class="text-sm text-red-600 hover:underline">Full Inventory →</a>
+            </div>
+            
+            {% if low_stock_count > 0 %}
+            <div class="flex items-center p-4 bg-yellow-100 rounded-lg border-l-4 border-yellow-500">
+                <svg class="w-6 h-6 text-yellow-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <p class="text-yellow-700">
+                    You have <strong class="font-bold">{{ low_stock_count }}</strong> product(s) currently running low on stock (less than 10 units).
+                </p>
+            </div>
+            {% else %}
+            <p class="text-gray-500 text-center py-4">✅ All products are currently well-stocked. Great job!</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock content %}

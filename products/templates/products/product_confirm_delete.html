@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Product{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-lg mt-10">
+    <h1 class="text-3xl font-bold text-red-600 mb-4">Confirm Product Deletion</h1>
+    
+    <p class="text-lg text-gray-700 mb-6">
+        Are you sure you want to delete the product 
+        <strong class="font-semibold text-gray-900">{{ product.name }} ({{ product.brand }})</strong>?
+    </p>
+    <p class="text-sm text-gray-500 mb-8">
+        This action cannot be undone. Any sale records tied to this product will be affected.
+        Current Stock: <strong>{{ product.stock_quantity }}</strong>
+    </p>
+
+    <form method="post" class="flex justify-end space-x-4">
+        {% csrf_token %}
+        <a href="{% url 'products:product_list' %}" class="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+            Cancel
+        </a>
+        <button type="submit" class="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+            Yes, Delete Product
+        </button>
+    </form>
+</div>
+{% endblock content %}
