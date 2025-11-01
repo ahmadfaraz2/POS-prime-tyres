@@ -8,6 +8,12 @@ from django.forms import inlineformset_factory
 from django.urls import reverse_lazy
 from django.contrib import messages
 
+# WeasyPrint Functionality
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from weasyprint import HTML, CSS
+from django.conf import settings # Needed for static file handling
+
 # We assume these models and forms are defined and imported correctly
 from .models import Sale, SaleItem, InstallmentPlan, InstallmentPayment
 from .forms import SaleForm, SaleItemForm, InstallmentPlanForm, InstallmentPaymentForm 
@@ -135,11 +141,22 @@ class InstallmentPaymentCreateView(LoginRequiredMixin, CreateView):
 
 @login_required
 def sale_receipt_view(request, pk):
-    """Generates a simplified, print-friendly receipt view for a Sale."""
+    """Generates an A4 PDF receipt with three copies using WeasyPrint."""
     sale = get_object_or_404(Sale, pk=pk)
     
-    context = {
-        'sale': sale,
-    }
-    # Renders the new, simple receipt template
-    return render(request, 'sales/sale_receipt.html', context)
+    # 1. Render the HTML template content
+    html_string = render_to_string('sales/sale_receipt.html', {'sale': sale})
+    
+    # 2. Convert HTML to PDF using WeasyPrint
+    
+    # Note: Use a base_url for WeasyPrint to correctly find static files (if any are used in the CSS/HTML)
+    pdf = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
+    
+    # 3. Prepare the HTTP response
+    response = HttpResponse(pdf, content_type='application/pdf')
+    
+    # Force download/display name (optional, but good practice)
+    filename = f"sale_receipt_{sale.pk}.pdf"
+    response['Content-Disposition'] = f'inline; filename="{filename}"'
+    
+    return response
