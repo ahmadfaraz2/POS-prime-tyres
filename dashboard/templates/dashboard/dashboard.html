@@ -11,25 +11,25 @@
 
         <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-primary-blue transition duration-300 hover:shadow-xl">
             <p class="text-sm font-medium text-gray-500">Today's Sales</p>
-            <p class="mt-1 text-3xl font-bold text-primary-blue">{{ today_sales_count }}</p>
+            <p class="mt-1 text-2xl font-bold text-primary-blue">{{ today_sales_count }}</p>
             <a href="{% url 'sales:sale_list' %}" class="text-xs text-primary-blue hover:underline mt-2 block">View all sales</a>
         </div>
 
         <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-green-600 transition duration-300 hover:shadow-xl">
             <p class="text-sm font-medium text-gray-500">Total Revenue (All Time)</p>
-            <p class="mt-1 text-3xl font-bold text-green-600">Rs {{ total_revenue|floatformat:2|intcomma }}</p>
+            <p class="mt-1 text-2xl font-bold text-green-600">Rs {{ total_revenue|floatformat:0|intcomma }}</p>
             <p class="text-xs text-gray-400 mt-2 block">Accumulated gross sales</p>
         </div>
 
         <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-purple-600 transition duration-300 hover:shadow-xl">
             <p class="text-sm font-medium text-gray-500">Total Customers</p>
-            <p class="mt-1 text-3xl font-bold text-purple-600">{{ total_customers|intcomma }}</p>
+            <p class="mt-1 text-2xl font-bold text-purple-600">{{ total_customers|intcomma }}</p>
             <a href="{% url 'customers:customer_list' %}" class="text-xs text-purple-600 hover:underline mt-2 block">Manage customers</a>
         </div>
 
         <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-yellow-600 transition duration-300 hover:shadow-xl">
             <p class="text-sm font-medium text-gray-500">Total Products</p>
-            <p class="mt-1 text-3xl font-bold text-yellow-600">{{ total_products|intcomma }}</p>
+            <p class="mt-1 text-2xl font-bold text-yellow-600">{{ total_products|intcomma }}</p>
             <a href="{% url 'products:product_list' %}" class="text-xs text-yellow-600 hover:underline mt-2 block">Manage inventory</a>
         </div>
     </div>

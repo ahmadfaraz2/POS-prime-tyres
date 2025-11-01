@@ -24,10 +24,7 @@ class Sale(models.Model):
 
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT, related_name='sales')
     sale_date = models.DateTimeField(auto_now_add=True)
-    
-    # CRITICAL ADDITION: This field receives the 'payment_method' keyword argument.
     payment_method = models.CharField(max_length=10, choices=METHOD_CHOICES, default=CASH) 
-    
     payment_type = models.CharField(max_length=4, choices=PAYMENT_CHOICES, default='FULL')
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
@@ -41,7 +38,6 @@ class SaleItem(models.Model):
     def __str__(self):
         return f"{self.quantity} x {self.product.name} on Sale {self.sale.id}"
 
-    # Important: Logic to decrement stock will happen in the View/Form processing layer, not here.
 
 
 class InstallmentPlan(models.Model):

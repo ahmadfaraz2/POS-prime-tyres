@@ -36,7 +36,7 @@
                         <div class="text-xs text-gray-400 mt-0.5">{{ product.description|truncatechars:50 }}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">{{ product.type }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Rs{{ product.price|floatformat:2|intcomma }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Rs {{ product.price|floatformat:0|intcomma }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold">
                         {% if product.stock_quantity < 10 and product.stock_quantity > 0 %}
                             <span class="text-orange-500">{{ product.stock_quantity }} (Low)</span>
