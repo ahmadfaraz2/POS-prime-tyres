@@ -1,4 +1,3 @@
-
 {% load humanize %}
 <!DOCTYPE html>
 <html lang="en">
@@ -6,11 +5,13 @@
     <meta charset="UTF-8">
     <title>A4 Receipt Copies #{{ sale.id }}</title>
     <style>
+        /* --- General Body and Font Styles --- */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
             color: #333;
+            background-color: #f4f4f4; /* Subtle background for screen viewing */
         }
 
         /* --- Print Styles for A4 Paper --- */
@@ -19,50 +20,90 @@
             margin: 1cm; /* Standard A4 margin */
         }
         
+        /* --- Container for multiple copies --- */
         .a4-container {
             width: 100%;
-            display: flex; /* Use flex to put copies side-by-side or stacked */
-            flex-direction: column; /* Stacked copies */
+            display: flex;
+            flex-direction: column; /* Stacked copies by default */
             align-items: flex-start;
         }
 
+        /* --- Individual Receipt Copy Styling --- */
         .receipt-copy {
-            width: 9cm; /* Arbitrary width, adjust as needed */
+            position: relative; /* Needed for positioning the stamp */
+            width: 9cm; 
             max-width: 100%;
-            height: 12cm; /* Fixed height for consistent look */
-            margin-bottom: 1.5cm; /* Spacing between stacked receipts */
-            padding: 15px;
-            border: 1px dashed #ccc;
+            /* Removed fixed height (12cm) to allow content to flow naturally, 
+               which is better for variable length receipts. You can re-add if needed. */
+            min-height: 12cm; /* Ensure minimum size */
+            margin-bottom: 2cm; /* Spacing between stacked receipts */
+            padding: 20px;
+            border: 1px solid #ddd; /* Subtle border */
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Slight shadow for screen view */
             box-sizing: border-box;
-            page-break-after: avoid; /* Keep copies on the same page */
+            background-color: #fff;
+            page-break-after: avoid; 
+        }
+
+        /* --- Diagonal "PAID" Stamp Style --- */
+        .stamp-paid {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg); /* Center and rotate */
+            padding: 10px 20px;
+            border: 5px solid #E57373; /* Light Red/Coral border */
+            color: #E57373; 
+            font-size: 32px;
+            font-weight: bold;
+            opacity: 0.6; /* Semi-transparent */
+            border-radius: 5px;
+            text-transform: uppercase;
+            z-index: 100; /* Ensure it's above other content */
         }
         
-        /* Optional: If you want three side-by-side copies */
-        /*
-        @media print {
-            .a4-container {
-                flex-direction: row;
-                justify-content: space-between;
-            }
-            .receipt-copy {
-                width: 30%; 
-                margin-right: 1%;
-            }
+        /* Optionally hide the stamp in accounting copy, or show it for all */
+        .receipt-copy:nth-child(3) .stamp-paid {
+             /* opacity: 0.1; could be an option */
+             border-color: #4CAF50; /* Green for accounting/record keeping */
+            color: #4CAF50;
         }
-        */
 
-        h1, h2 {
+        /* --- Headings and Text Styles --- */
+        h1 {
+            font-size: 18px;
             text-align: center;
-            margin: 5px 0;
+            margin: 0 0 5px 0;
+            color: #1a1a1a;
         }
-        .header {
-            border-bottom: 1px solid #333;
-            padding-bottom: 5px;
-            margin-bottom: 5px;
+        p {
+            margin: 2px 0;
         }
-        .details, .items, .footer {
+        .copy-type {
+            text-align: center;
+            font-size: 10px;
             margin-bottom: 10px;
-            font-size: 11px; /* Smaller font for A4 density */
+            color: #777;
+            font-style: italic;
+        }
+
+        /* --- Header Section --- */
+        .header {
+            border-bottom: 2px solid #333; /* Thicker line for better separation */
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+            font-size: 11px;
+        }
+        .header p strong {
+            display: inline-block;
+            width: 70px; /* Aligns the data after the colons */
+            font-weight: 600;
+        }
+
+        /* --- Items Section --- */
+        .items, .footer {
+            font-size: 11px;
+            margin-bottom: 10px;
         }
         .items table {
             width: 100%;
@@ -70,31 +111,67 @@
         }
         .items th, .items td {
             text-align: left;
-            padding: 2px 0;
+            padding: 4px 0; /* Increased vertical padding */
             border-bottom: 1px dashed #eee;
+        }
+        .items th {
+            font-weight: bold;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+            text-transform: uppercase;
+        }
+        .items td:last-child {
+            text-align: right;
+        }
+        .items th:nth-child(2), .items td:nth-child(2) {
+            text-align: center;
+        }
+
+        /* --- Footer/Total Section --- */
+        .footer table {
+            width: 100%;
         }
         .total-row {
             font-weight: bold;
-            border-top: 1px solid #333;
-            padding-top: 3px !important;
+            border-top: 2px solid #333; /* Thick line for total */
+            padding-top: 5px !important;
+        }
+        .total-row td {
+            padding-top: 5px;
         }
         .total-row td:last-child {
-            font-size: 13px;
-            color: #10B981;
+            font-size: 14px; /* Slightly larger total */
+            color: #007bff; /* Blue total amount */
+            text-align: right;
+        }
+        
+        /* --- Thank You Note --- */
+        .thank-you {
+            text-align: center;
+            font-size: 10px;
+            margin-top: 15px;
+            border-top: 1px dashed #ccc;
+            padding-top: 10px;
+            color: #555;
         }
     </style>
 </head>
+
+
 <body onload="window.print()">
     <div class="a4-container">
         {% for i in "123" %}
         <div class="receipt-copy">
-            <h1 style="font-size: 16px;">{{ COMPANY_NAME|default:"Prime Tyres" }}</h1>
-            <p style="text-align: center; font-size: 10px;">Copy {{ forloop.counter }}: {% if forloop.first %}Original{% elif forloop.counter == 2 %}Customer{% else %}Accounting{% endif %}</p>
+            
+            <div class="stamp-paid">PAID</div> 
+
+            <h1>{{ COMPANY_NAME|default:"Prime Tyres" }}</h1>
+            <p class="copy-type">Copy {{ forloop.counter }}: {% if forloop.first %}ORIGINAL{% elif forloop.counter == 2 %}CUSTOMER COPY{% else %}ACCOUNTING{% endif %}</p>
 
             <div class="header">
                 <p><strong>Receipt ID:</strong> #{{ sale.id }}</p>
-                <p><strong>Date:</strong> {{ sale.sale_date|date:"Y-m-d H:i" }}</p>
-                <p><strong>Customer:</strong> {{ sale.customer.name|default:"N/A" }}</p>
+                <p><strong>Date:</strong> {{ sale.sale_date|date:"d/m/Y H:i" }}</p>
+                <p><strong>Customer:</strong> {{ sale.customer.name|default:"Cash Customer" }}</p>
                 <p><strong>Payment:</strong> {{ sale.get_payment_method_display }} ({{ sale.get_payment_type_display }})</p>
             </div>
 
@@ -110,9 +187,13 @@
                     <tbody>
                         {% for item in sale.items.all %}
                         <tr>
-                            <td>{{ item.product.name|truncatechars:20 }}</td>
+                            <td>{{ item.product.name|truncatechars:25 }}</td>
                             <td style="text-align: center;">{{ item.quantity }}</td>
                             <td style="text-align: right;">Rs {{ item.subtotal|floatformat:0|intcomma }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" style="text-align: center;">*No items found for this sale.*</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -128,9 +209,11 @@
                 </table>
             </div>
             
-            <p style="text-align: center; font-size: 10px; margin-top: 10px;">** Thank you for your purchase! **</p>
+            <p class="thank-you"> Thank you for choosing {{ COMPANY_NAME|default:"Prime Tyres" }}! </p>
         </div>
         {% endfor %}
     </div>
 </body>
-</html> 
+</html>
+
+
