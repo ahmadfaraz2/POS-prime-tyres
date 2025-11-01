@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Sales Cart{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8">
+    <div class="flex justify-between items-center border-b pb-4">
+        <h1 class="text-3xl font-bold text-gray-800">Current Sale Cart</h1>
+        {% if items %}
+        <a href="{% url 'products:clear_cart' %}" class="text-red-500 hover:text-red-700 text-sm font-medium">
+            Clear Cart
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 bg-white shadow-lg rounded-lg p-6 space-y-4">
+            <h2 class="text-xl font-semibold border-b pb-2">Items ({{ cart.get_total_items }} unique products)</h2>
+            {% if items %}
+                {% for item in items %}
+                <div class="flex justify-between items-center py-3 border-b last:border-b-0">
+                    <div class="flex-grow">
+                        <p class="font-medium text-gray-900">{{ item.product.name }} ({{ item.product.brand }})</p>
+                        <p class="text-sm text-gray-500">
+                            Rs{{ item.product.price|floatformat:2|intcomma }} x {{ item.quantity }}
+                        </p>
+                    </div>
+                    <div class="text-right flex items-center space-x-4">
+                        <span class="font-bold text-lg text-indigo-600">
+                            Rs{{ item.subtotal|floatformat:2|intcomma }}
+                        </span>
+                        <a href="{% url 'products:remove_from_cart' item.pk %}" class="text-red-500 hover:text-red-700 text-sm p-1 rounded">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-center text-gray-500 py-10">The cart is currently empty. Add products from the <a href="{% url 'products:product_list' %}" class="text-indigo-600 hover:underline">inventory list</a>.</p>
+            {% endif %}
+        </div>
+
+        <div class="lg:col-span-1">
+            <div class="bg-white shadow-lg rounded-lg p-6 space-y-6 sticky top-20">
+                <h2 class="text-xl font-semibold border-b pb-2">Order Summary</h2>
+
+                <div class="flex justify-between text-lg font-bold text-gray-800">
+                    <span>Total:</span>
+                    <span class="text-2xl text-green-600">Rs{{ cart.get_total_price|floatformat:2|intcomma }}</span>
+                </div>
+
+                {% if items %}
+                <form method="post" action="{% url 'products:cart_checkout' %}" class="space-y-4">
+                    {% csrf_token %}
+
+                    <div>
+                        <label for="customer_id" class="block text-sm font-medium text-gray-700">Select Customer <span class="text-red-500">*</span></label>
+                        <select id="customer_id" name="customer_id" required
+                            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                            <option value="">-- Choose Customer --</option>
+                            {% for customer in customers %}
+                            <option value="{{ customer.pk }}">{{ customer.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="payment_method" class="block text-sm font-medium text-gray-700">Payment Method</label>
+                        <select id="payment_method" name="payment_method"
+                            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                            <option value="CASH">Cash</option>
+                            <option value="CARD">Credit/Debit Card</option>
+                            <option value="TRANSFER">Bank Transfer</option>
+                        </select>
+                    </div>
+                    
+                    <p class="text-xs text-red-500">Note: Checkout will permanently deduct stock and create a Sale record.</p>
+
+                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg shadow-lg transition duration-150">
+                        Finalize Sale & Checkout
+                    </button>
+                </form>
+                {% else %}
+                    <button disabled class="w-full bg-gray-400 text-white font-bold py-3 rounded-lg shadow-lg">
+                        Cart is Empty
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

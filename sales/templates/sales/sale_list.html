@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load humanize %}
 
 {% block title %}Sales History{% endblock %}
 
@@ -31,7 +32,7 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ sale.id }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ sale.customer.name }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">{{ sale.sale_date|date:"Y-m-d H:i" }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-700">${{ sale.total_amount|floatformat:2 }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-700">Rs {{ sale.total_amount|floatformat:0|intcomma }}</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                             {% if sale.payment_type == 'FULL' %}bg-green-100 text-green-800{% else %}bg-orange-100 text-orange-800{% endif %}">
