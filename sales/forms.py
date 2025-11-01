@@ -1,7 +1,7 @@
 from django import forms
 from django.urls import reverse
 from django.forms.models import inlineformset_factory
-from .models import Sale, SaleItem, InstallmentPlan, Product, InstallmentPayment
+from .models import Sale, SaleItem, InstallmentPlan, Product, InstallmentPayment, Return, ReturnItem
 
 # Form for the main Sale details
 
@@ -63,4 +63,17 @@ class InstallmentPaymentForm(forms.ModelForm):
         fields = ['amount_paid', 'due_date']
         widgets = {
             'due_date': forms.DateInput(attrs={'type': 'date', 'readonly': 'readonly'}),
+        }
+
+
+class ReturnCreateForm(forms.ModelForm):
+    """
+    Form for creating the main Return object, primarily selecting the reason.
+    """
+    class Meta:
+        model = Return
+        # We only need the reason from the form, sale is passed in the view
+        fields = ['reason'] 
+        widgets = {
+            'reason': forms.Select(attrs={'class': 'form-control'}),
         }

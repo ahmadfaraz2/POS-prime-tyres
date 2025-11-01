@@ -1,4 +1,5 @@
 from django import template
+from decimal import Decimal
 
 register = template.Library()
 
@@ -30,3 +31,20 @@ def sub(value, arg):
     except (ValueError, TypeError):
         # Handle cases where value or arg aren't numbers gracefully
         return ''
+    
+
+
+@register.filter
+def get_total_refunds(returns_queryset):
+    """
+    Calculates the sum of total_refund_amount for a queryset of Return objects.
+    """
+    total = Decimal('0.00')
+    
+    # Ensure returns_queryset is iterable and contains return objects
+    if returns_queryset is not None:
+        for return_obj in returns_queryset:
+            # Safely add the total_refund_amount
+            total += return_obj.total_refund_amount
+    
+    return total

@@ -2,10 +2,9 @@ from django.db import models
 from django.urls import reverse
 from customers.models import Customer
 from products.models import Product
+from django.db.models import Sum
 
-# Constants for payment status
 
-# --- Constants for Sale and Payment Method (Must be defined outside the class) ---
 CASH = 'CASH'
 CARD = 'CARD'
 TRANSFER = 'TRANSFER'
@@ -72,3 +71,54 @@ class InstallmentPayment(models.Model):
 
     def __str__(self):
         return f"Payment {self.id} for Plan {self.plan.sale.id}"
+    
+
+
+
+# --- Sales Returns System ---
+
+class Return(models.Model):
+    RETURN_REASONS = [
+        ('DEFECTIVE', 'Defective Product'),
+        ('WRONG_ITEM', 'Wrong Item Shipped'),
+        ('CUSTOMER_CHANGE', 'Customer Changed Mind'),
+        ('OTHER', 'Other'),
+    ]
+
+    sale = models.ForeignKey(
+        'Sale', 
+        on_delete=models.PROTECT, 
+        related_name='returns',
+        help_text="The original sale transaction being returned."
+    )
+    return_date = models.DateTimeField(auto_now_add=True)
+    total_refund_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    reason = models.CharField(max_length=50, choices=RETURN_REASONS, default='CUSTOMER_CHANGE')
+    
+    def __str__(self):
+        return f"Return #{self.id} for Sale #{self.sale.id}"
+    
+    def calculate_total(self):
+        """Calculates and updates the total refund amount based on items."""
+        total = self.items.aggregate(Sum('subtotal_refund'))['subtotal_refund__sum'] or 0.00
+        self.total_refund_amount = total
+        self.save()
+
+
+class ReturnItem(models.Model):
+    return_obj = models.ForeignKey(Return, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey('products.Product', on_delete=models.PROTECT)
+    quantity = models.IntegerField(help_text="Quantity of this product being returned.")
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Price at time of original sale.")
+    subtotal_refund = models.DecimalField(max_digits=10, decimal_places=2, help_text="Calculated amount to refund for this item.")
+
+    def __str__(self):
+        return f"{self.quantity} returned of {self.product.name}"
+    
+    def save(self, *args, **kwargs):
+        # Calculate the subtotal refund before saving
+        self.subtotal_refund = self.quantity * self.unit_price
+        super().save(*args, **kwargs)
+
+        # After saving the item, update the parent Return's total
+        self.return_obj.calculate_total()
