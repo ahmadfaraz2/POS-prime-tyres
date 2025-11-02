@@ -5,81 +5,158 @@
     <meta charset="UTF-8">
     <title>A4 Receipt Copies #{{ sale.id }}</title>
     <style>
+        /* --- General Print & Layout Styles (MAXIMUM SIZE) --- */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            color: #333;
+            color: #1a1a1a; 
+            font-size: 14pt; /* Base font size for A4 printing */
         }
-
-        /* --- Print Styles for A4 Paper --- */
+        
         @page {
             size: A4;
-            margin: 1cm; /* Standard A4 margin */
+            margin: 0.5cm; /* Minimal margin for maximum usage */
         }
-        
+
         .a4-container {
             width: 100%;
-            display: flex; /* Use flex to put copies side-by-side or stacked */
-            flex-direction: column; /* Stacked copies */
-            align-items: flex-start;
+            display: flex;
+            flex-direction: column; 
+            align-items: center; 
+            padding: 0.5cm; 
+            box-sizing: border-box;
         }
 
+        /* --- Individual Receipt Copy (Full Width, Large Text) --- */
         .receipt-copy {
-            width: 9cm; /* Arbitrary width, adjust as needed */
-            max-width: 100%;
-            height: 12cm; /* Fixed height for consistent look */
-            margin-bottom: 1.5cm; /* Spacing between stacked receipts */
-            padding: 15px;
-            border: 1px dashed #ccc;
+            position: relative;
+            width: 98%; 
+            min-height: 15cm; 
+            margin-bottom: 2.5cm; /* Larger gap for separation */
+            padding: 35px; /* Maximum padding */
+            border: 3px dashed #666; 
             box-sizing: border-box;
-            page-break-after: avoid; /* Keep copies on the same page */
+            background-color: #fff;
+            page-break-after: avoid; 
+        }
+
+        /* --- Diagonal "PAID" Stamp (MAXIMIZED & Dynamic) --- */
+        .stamp {
+            position: absolute;
+            top: 50%;
+            right: 10%; 
+            transform: translateY(-50%) rotate(-25deg);
+            padding: 15px 40px; 
+            font-size: 55pt; 
+            font-weight: 900;
+            text-transform: uppercase;
+            border-radius: 10px;
+            opacity: 0.45; 
+            z-index: 1000;
+            min-width: 400px;
+            text-align: center;
+        }
+
+        /* Status colors based on 'sale.paid' which we'll assume is available */
+        .paid-stamp {
+            border: 8px solid #FF0000; /* Dark Green */
+            color: #FF0000;
         }
         
-        /* Optional: If you want three side-by-side copies */
-        /*
-        @media print {
-            .a4-container {
-                flex-direction: row;
-                justify-content: space-between;
-            }
-            .receipt-copy {
-                width: 30%; 
-                margin-right: 1%;
-            }
+        /* If you need a pending state (e.g., invoice/credit sale) */
+        .pending-stamp {
+            border: 8px solid #FF0000; /* Red */
+            color: #FF0000;
         }
-        */
 
-        h1, h2 {
+        /* --- Header and Details (Larger Text) --- */
+        h1 {
+            font-size: 32pt; 
             text-align: center;
-            margin: 5px 0;
+            margin: 0 0 10px 0;
+            color: #000;
         }
-        .header {
-            border-bottom: 1px solid #333;
-            padding-bottom: 5px;
-            margin-bottom: 5px;
-        }
-        .details, .items, .footer {
+        
+        h3 { /* Used for section titles like "Receipt Details" */
+            font-size: 20pt; 
+            color: #333;
+            margin-top: 25px;
             margin-bottom: 10px;
-            font-size: 11px; /* Smaller font for A4 density */
+            border-bottom: 3px solid #ccc;
+            display: inline-block;
         }
-        .items table {
+
+        .copy-type {
+            text-align: center;
+            font-size: 16pt; 
+            margin-bottom: 20px;
+            color: #333;
+            font-style: italic;
+        }
+
+        .header-details p {
+            line-height: 1.6;
+            margin: 4px 0;
+            font-size: 16pt; /* Large text for details */
+        }
+        .header-details p strong {
+            display: inline-block;
+            width: 180px; /* Ample space for label alignment */
+            font-weight: 700;
+        }
+
+        /* --- Table Styles (Largest Text) --- */
+        table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 16pt; 
+            page-break-inside: auto;
         }
-        .items th, .items td {
+        
+        thead th {
             text-align: left;
-            padding: 2px 0;
-            border-bottom: 1px dashed #eee;
+            padding: 12px 10px;
+            background-color: #f0f0f0; 
+            border-bottom: 4px solid #333;
+            border-top: 2px solid #ccc;
+            text-transform: uppercase;
         }
+        
+        tbody td {
+            padding: 10px;
+            border-bottom: 1px dashed #aaa;
+        }
+        
+        .num {
+            text-align: right;
+            font-weight: 500;
+        }
+        
+        /* --- Footer/Total Section (Maximized) --- */
         .total-row {
-            font-weight: bold;
-            border-top: 1px solid #333;
-            padding-top: 3px !important;
+            font-weight: 900;
+            border-top: 5px solid #000; 
+            padding-top: 15px !important;
+        }
+        .total-row td {
+            padding-top: 15px;
         }
         .total-row td:last-child {
-            font-size: 13px;
-            color: #10B981;
+            font-size: 30pt; /* Huge font for the total amount */
+            color: #008000; 
+            text-align: right;
+        }
+        
+        .thank-you {
+            text-align: center;
+            font-size: 18pt; /* Very large thank you note */
+            margin-top: 35px;
+            border-top: 2px dashed #666;
+            padding-top: 20px;
+            color: #333;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -87,47 +164,58 @@
     <div class="a4-container">
         {% for i in "123" %}
         <div class="receipt-copy">
-            <h1 style="font-size: 16px;">{{ COMPANY_NAME|default:"Prime Tyres" }}</h1>
-            <p style="text-align: center; font-size: 10px;">Copy {{ forloop.counter }}: {% if forloop.first %}Original{% elif forloop.counter == 2 %}Customer{% else %}Accounting{% endif %}</p>
+            
+            <div class="stamp {% if sale.paid|default:True %}paid-stamp{% else %}pending-stamp{% endif %}">
+                {% if sale.paid|default:True %}PAID{% else %}PENDING{% endif %}
+            </div> 
 
-            <div class="header">
+            <h1>{{ COMPANY_NAME|default:"PRIME TYRES & SERVICES" }}</h1>
+            <p class="copy-type">Copy {{ forloop.counter }}: {% if forloop.first %}**OFFICIAL ORIGINAL**{% elif forloop.counter == 2 %}**CUSTOMER RETAIN COPY**{% else %}**ACCOUNTING RECORD**{% endif %}</p>
+
+            <section class="header-details">
+                <h3>Transaction Details</h3>
                 <p><strong>Receipt ID:</strong> #{{ sale.id }}</p>
-                <p><strong>Date:</strong> {{ sale.sale_date|date:"Y-m-d H:i" }}</p>
-                <p><strong>Customer:</strong> {{ sale.customer.name|default:"N/A" }}</p>
-                <p><strong>Payment:</strong> {{ sale.get_payment_method_display }} ({{ sale.get_payment_type_display }})</p>
-            </div>
+                <p><strong>Date/Time:</strong> {{ sale.sale_date|date:"Y-m-d H:i" }}</p>
+                <p><strong>Customer:</strong> {{ sale.customer.name|default:"Cash Customer" }}</p>
+                <p><strong>Payment Method:</strong> {{ sale.get_payment_method_display }} ({{ sale.get_payment_type_display }})</p>
+            </section>
 
-            <div class="items">
+            <section class="items-bought">
+                <h3>Items Purchased</h3>
                 <table>
                     <thead>
                         <tr>
-                            <th style="width: 50%;">Item</th>
-                            <th style="text-align: center;">Qty</th>
-                            <th style="text-align: right;">Subtotal</th>
+                            <th style="width: 50%;">ITEM DESCRIPTION</th>
+                            <th class="num" style="text-align: center;">QTY</th>
+                            <th class="num">SUBTOTAL (RS)</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for item in sale.items.all %}
                         <tr>
-                            <td>{{ item.product.name|truncatechars:20 }}</td>
-                            <td style="text-align: center;">{{ item.quantity }}</td>
-                            <td style="text-align: right;">Rs {{ item.subtotal|floatformat:0|intcomma }}</td>
+                            <td>{{ item.product.name|truncatechars:50 }}</td>
+                            <td class="num" style="text-align: center;">{{ item.quantity }}</td>
+                            <td class="num">Rs {{ item.subtotal|floatformat:0|intcomma }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" style="text-align: center; font-style: italic; padding: 15px;">*No items recorded for this transaction.*</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-            </div>
+            </section>
 
-            <div class="footer">
-                <table style="width: 100%;">
+            <section class="footer-totals">
+                <table style="margin-top: 0;">
                     <tr class="total-row">
-                        <td colspan="2">TOTAL DUE:</td>
-                        <td style="text-align: right;">Rs {{ sale.total_amount|floatformat:0|intcomma }}</td>
+                        <td colspan="2" style="text-align: right; padding-right: 20px;">GRAND TOTAL DUE:</td>
+                        <td class="num">Rs {{ sale.total_amount|floatformat:0|intcomma }}</td>
                     </tr>
                 </table>
-            </div>
+            </section>
             
-            <p style="text-align: center; font-size: 10px; margin-top: 10px;">** Thank you for your purchase! **</p>
+            <p class="thank-you">** THANK YOU FOR YOUR VALUED BUSINESS! **</p>
         </div>
         {% endfor %}
     </div>

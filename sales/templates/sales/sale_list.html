@@ -11,6 +11,28 @@
             + Record New Sale
         </a>
     </div>
+    <div class="flex space-x-4 mb-6">
+    <a href="{% url 'sales:sale_list' %}" 
+        class="py-2 px-4 rounded font-medium text-sm transition duration-150 
+            {% if not active_filter %}bg-indigo-600 text-white shadow-md{% else %}text-gray-700 bg-gray-200 hover:bg-gray-300{% endif %}">
+        All Sales
+    </a>
+    <a href="{% url 'sales:sale_list' %}?filter=today" 
+        class="py-2 px-4 rounded font-medium text-sm transition duration-150 
+            {% if active_filter == 'today' %}bg-indigo-600 text-white shadow-md{% else %}text-gray-700 bg-gray-200 hover:bg-gray-300{% endif %}">
+        Today's Sales
+    </a>
+    <a href="{% url 'sales:sale_list' %}?filter=week" 
+        class="py-2 px-4 rounded font-medium text-sm transition duration-150 
+            {% if active_filter == 'week' %}bg-indigo-600 text-white shadow-md{% else %}text-gray-700 bg-gray-200 hover:bg-gray-300{% endif %}">
+        This Week's Sales
+    </a>
+    <a href="{% url 'sales:sale_list' %}?filter=month" 
+        class="py-2 px-4 rounded font-medium text-sm transition duration-150 
+            {% if active_filter == 'month' %}bg-indigo-600 text-white shadow-md{% else %}text-gray-700 bg-gray-200 hover:bg-gray-300{% endif %}">
+        This Month's Sales
+    </a>
+</div>
 
     <div class="bg-white shadow-lg rounded-lg overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">

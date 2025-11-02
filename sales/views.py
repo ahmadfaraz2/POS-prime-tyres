@@ -8,6 +8,9 @@ from django.forms import inlineformset_factory
 from django.urls import reverse_lazy
 from django.contrib import messages
 
+from django.utils import timezone
+from datetime import timedelta
+
 # We assume these models and forms are defined and imported correctly
 from .models import Sale, SaleItem, InstallmentPlan, InstallmentPayment
 from .forms import SaleForm, SaleItemForm, InstallmentPlanForm, InstallmentPaymentForm 
@@ -29,6 +32,35 @@ class SaleListView(LoginRequiredMixin, ListView):
     template_name = 'sales/sale_list.html'
     context_object_name = 'sales'
     ordering = ['-sale_date']
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        # Get the filter parameter from the URL (e.g., ?filter=today)
+        time_filter = self.request.GET.get('filter')
+        now = timezone.now()
+        
+        if time_filter == 'today':
+            # Filter for sales made today (from midnight to midnight)
+            start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
+            queryset = queryset.filter(sale_date__gte=start_of_day)
+
+        elif time_filter == 'week':
+            # Filter for sales made in the current week (e.g., last 7 days or start of week)
+            last_week = now - timedelta(days=7)
+            queryset = queryset.filter(sale_date__gte=last_week)
+
+        elif time_filter == 'month':
+            # Filter for sales made in the current calendar month
+            start_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            queryset = queryset.filter(sale_date__gte=start_of_month)
+        
+        if not hasattr(self, 'extra_context') or self.extra_context is None:
+            self.extra_context = {}
+            
+        # 2. Safely add the filter variable
+        self.extra_context['active_filter'] = time_filter
+        
+        return queryset.order_by(self.ordering[0])
 
 class SaleDetailView(LoginRequiredMixin, DetailView):
     model = Sale
